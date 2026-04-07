@@ -5,7 +5,6 @@
 const FACE_OPTIONS = [4, 6, 8, 10, 12, 20, 100];
 const ROLL_DURATION = 700;
 const ROLL_INTERVAL = 50;
-const LONG_PRESS_MS = 400;
 
 let dice = [];
 let nextId = 1;
@@ -27,6 +26,7 @@ function addDie(faces = 6) {
   const die = { id: nextId++, faces, value: null, isRolling: false };
   dice.push(die);
   renderDieCard(die);
+  updateDiceSize();
   updateTotal();
 }
 
@@ -38,6 +38,7 @@ function removeDie(id) {
   card.addEventListener('animationend', () => {
     card.remove();
     dice = dice.filter(d => d.id !== id);
+    updateDiceSize();
     updateTotal();
   }, { once: true });
 }
@@ -97,6 +98,31 @@ function rollAll() {
   dice.forEach((die, index) => {
     setTimeout(() => rollDie(die.id), index * stagger);
   });
+}
+
+// ---- Dynamic Sizing (mobile) ----
+
+function updateDiceSize() {
+  if (!isMobile()) return;
+
+  const count = dice.length;
+  let size, font, gap;
+
+  if (count <= 2) {
+    size = 100; font = 2.2; gap = 16;
+  } else if (count <= 4) {
+    size = 80; font = 1.8; gap = 14;
+  } else if (count <= 9) {
+    size = 68; font = 1.5; gap = 10;
+  } else if (count <= 16) {
+    size = 56; font = 1.3; gap = 8;
+  } else {
+    size = 46; font = 1.1; gap = 6;
+  }
+
+  container.style.setProperty('--dice-size', size + 'px');
+  container.style.setProperty('--dice-font', font + 'rem');
+  container.style.setProperty('--dice-gap', gap + 'px');
 }
 
 // ---- Total ----
@@ -185,9 +211,23 @@ let activePopover = null;
 function openPopover(card, die) {
   closePopover();
 
+  // Backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'die-popover-backdrop';
+  backdrop.addEventListener('click', closePopover);
+  document.body.appendChild(backdrop);
+
+  // Popover
   const popover = document.createElement('div');
   popover.className = 'die-popover open';
 
+  // Title
+  const title = document.createElement('div');
+  title.className = 'popover-title';
+  title.textContent = `d${die.faces}`;
+  popover.appendChild(title);
+
+  // Selector
   const selector = document.createElement('select');
   selector.className = 'face-selector';
   FACE_OPTIONS.forEach(f => {
@@ -197,7 +237,6 @@ function openPopover(card, die) {
     if (f === die.faces) opt.selected = true;
     selector.appendChild(opt);
   });
-  // Check if current faces is custom
   if (!FACE_OPTIONS.includes(die.faces)) {
     const customCurrent = document.createElement('option');
     customCurrent.value = die.faces;
@@ -213,7 +252,6 @@ function openPopover(card, die) {
 
   selector.addEventListener('change', () => {
     if (selector.value === 'custom') {
-      // Replace selector with input inside popover
       const input = document.createElement('input');
       input.type = 'number';
       input.min = '2';
@@ -234,20 +272,18 @@ function openPopover(card, die) {
         if (e.key === 'Enter') confirmCustom();
         if (e.key === 'Escape') closePopover();
       });
-      input.addEventListener('blur', () => {
-        setTimeout(confirmCustom, 100);
-      });
+      input.addEventListener('blur', () => setTimeout(confirmCustom, 100));
     } else {
       setFaces(die.id, parseInt(selector.value, 10));
       closePopover();
     }
   });
 
+  // Remove button
   const removeBtn = document.createElement('button');
   removeBtn.className = 'popover-remove-btn';
   removeBtn.textContent = 'Rimuovi dado';
-  removeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
+  removeBtn.addEventListener('click', () => {
     closePopover();
     removeDie(die.id);
   });
@@ -255,76 +291,42 @@ function openPopover(card, die) {
   popover.appendChild(selector);
   popover.appendChild(removeBtn);
 
-  // Stop popover taps from propagating to the card
-  popover.addEventListener('click', (e) => e.stopPropagation());
-  popover.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
-
-  card.style.position = 'relative';
-  card.appendChild(popover);
-  activePopover = { element: popover, cardId: die.id };
+  document.body.appendChild(popover);
+  activePopover = { popover, backdrop, cardId: die.id };
 }
 
 function closePopover() {
   if (activePopover) {
-    activePopover.element.remove();
+    activePopover.popover.remove();
+    activePopover.backdrop.remove();
     activePopover = null;
   }
 }
 
-// Close popover on tap outside
-document.addEventListener('click', (e) => {
-  if (activePopover && !e.target.closest('.die-popover')) {
-    closePopover();
-  }
-});
-
 // ---- Mobile Touch Handling ----
 
 function setupMobileTouch(card, die) {
-  let pressTimer = null;
-  let didLongPress = false;
-  let startX = 0;
-  let startY = 0;
-
-  card.addEventListener('touchstart', (e) => {
-    if (e.target.closest('.die-popover')) return;
-    didLongPress = false;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-
-    pressTimer = setTimeout(() => {
-      didLongPress = true;
-      // Haptic feedback if available
-      if (navigator.vibrate) navigator.vibrate(30);
-      openPopover(card, die);
-    }, LONG_PRESS_MS);
-  }, { passive: true });
-
-  card.addEventListener('touchmove', (e) => {
-    // Cancel long press if finger moves
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-      clearTimeout(pressTimer);
-    }
-  }, { passive: true });
-
-  card.addEventListener('touchend', (e) => {
-    clearTimeout(pressTimer);
-    if (e.target.closest('.die-popover')) return;
-
-    if (!didLongPress && isMobile()) {
-      // Short tap = roll
-      closePopover();
-      card.classList.add('tapped');
-      setTimeout(() => card.classList.remove('tapped'), 200);
-      rollDie(die.id);
-    }
+  // Tap on die face = roll
+  const faceEl = card.querySelector('.die-face');
+  faceEl.addEventListener('click', (e) => {
+    if (!isMobile()) return;
+    e.stopPropagation();
+    closePopover();
+    card.classList.add('tapped');
+    setTimeout(() => card.classList.remove('tapped'), 200);
+    rollDie(die.id);
   });
 
-  // Prevent context menu on long press
-  card.addEventListener('contextmenu', (e) => {
-    if (isMobile()) e.preventDefault();
+  // Tap on label = open popover
+  const labelEl = card.querySelector('.die-label');
+  labelEl.addEventListener('click', (e) => {
+    if (!isMobile()) return;
+    e.stopPropagation();
+    if (activePopover && activePopover.cardId === die.id) {
+      closePopover();
+    } else {
+      openPopover(card, die);
+    }
   });
 }
 
@@ -397,6 +399,9 @@ document.addEventListener('keydown', (e) => {
     rollAll();
   }
 });
+
+// ---- Resize handler ----
+window.addEventListener('resize', updateDiceSize);
 
 // ---- Init ----
 addDie(6);

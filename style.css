@@ -515,40 +515,50 @@ h1 {
 
 .die-popover {
   display: none;
-  position: absolute;
-  bottom: calc(100% + 10px);
+  position: fixed;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   background: #1a1a3e;
   border: 1.5px solid var(--gold);
   border-radius: 12px;
-  padding: 14px 16px;
-  z-index: 100;
+  padding: 18px 20px;
+  z-index: 200;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  min-width: 160px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 168, 76, 0.15);
-  animation: popover-in 0.25s ease-out;
+  gap: 12px;
+  min-width: 200px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(201, 168, 76, 0.15);
+  animation: popover-in 0.2s ease-out;
 }
 
 .die-popover.open {
   display: flex;
 }
 
-.die-popover::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-top-color: var(--gold);
+.die-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 199;
+  animation: backdrop-in 0.2s ease-out;
+}
+
+@keyframes backdrop-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @keyframes popover-in {
-  0% { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.95); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.die-popover .popover-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  margin-bottom: 2px;
 }
 
 .die-popover .face-selector,
@@ -677,11 +687,16 @@ h1 {
     font-size: 1.1rem;
   }
 
-  /* Compact dice grid */
+  /* Compact dice grid — sizes driven by JS via --dice-size and --dice-font */
   .dice-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
+    --dice-size: 72px;
+    --dice-font: 1.6rem;
+    --dice-gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(calc(var(--dice-size) + 20px), 1fr));
+    gap: var(--dice-gap);
     max-width: 100%;
+    transition: gap 0.3s ease;
   }
 
   /* Compact card: just face + label */
@@ -689,9 +704,10 @@ h1 {
     padding: 10px 8px;
     gap: 6px;
     border-radius: 12px;
-    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
     user-select: none;
+    transition: all 0.3s ease;
   }
 
   .die-card:hover {
@@ -699,8 +715,8 @@ h1 {
     box-shadow: none;
   }
 
-  .die-card:active {
-    transform: scale(0.93);
+  .die-face:active {
+    transform: scale(0.9);
   }
 
   /* Hide desktop controls on mobile */
@@ -711,19 +727,32 @@ h1 {
     display: none;
   }
 
-  /* Smaller die face */
+  /* Die face — size from CSS variable */
   .die-face {
-    width: 64px;
-    height: 64px;
+    width: var(--dice-size);
+    height: var(--dice-size);
     border-width: 2px;
+    cursor: pointer;
+    transition: width 0.3s ease, height 0.3s ease;
   }
 
   .die-value {
-    font-size: 1.5rem;
+    font-size: var(--dice-font);
+    transition: font-size 0.3s ease;
   }
 
   .die-label {
     font-size: 0.7rem;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all var(--transition-base);
+    border: 1px solid transparent;
+  }
+
+  .die-label:active {
+    background: rgba(201, 168, 76, 0.15);
+    border-color: var(--gold-dim);
   }
 
   /* Die face conic gradient on hover not needed on mobile */
@@ -735,27 +764,6 @@ h1 {
   .die-card.tapped .die-face {
     border-color: var(--cyan-glow);
     box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
-  }
-}
-
-/* Very small screens: even tighter grid */
-@media (max-width: 380px) {
-  .dice-grid {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    gap: 8px;
-  }
-
-  .die-face {
-    width: 56px;
-    height: 56px;
-  }
-
-  .die-value {
-    font-size: 1.3rem;
-  }
-
-  .die-card {
-    padding: 8px 6px;
   }
 }
 

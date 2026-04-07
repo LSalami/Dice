@@ -1,0 +1,773 @@
+/* ========================================
+   DICE ROLLER — "Arcane Table" Theme
+   ======================================== */
+
+:root {
+  --bg-deep: #0a0a1a;
+  --bg-surface: #111128;
+  --bg-card: rgba(26, 26, 62, 0.85);
+  --bg-card-hover: rgba(32, 32, 78, 0.95);
+
+  --gold: #c9a84c;
+  --gold-light: #e8d48b;
+  --gold-dim: rgba(201, 168, 76, 0.25);
+  --cyan-glow: #00e5ff;
+  --purple-glow: #b388ff;
+  --red-danger: #ff4060;
+
+  --text-primary: #e8e6e3;
+  --text-muted: #8a8a9a;
+  --border-subtle: rgba(201, 168, 76, 0.18);
+  --border-hover: rgba(201, 168, 76, 0.5);
+
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --radius-face: 50%;
+
+  --font-display: 'Cinzel Decorative', serif;
+  --font-body: 'Crimson Pro', serif;
+
+  --transition-base: 0.25s ease;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--bg-deep);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- Table Surface ---- */
+.table-surface {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 30%, rgba(26, 20, 60, 0.9) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(15, 15, 50, 0.6) 0%, transparent 80%),
+    var(--bg-deep);
+  padding: 40px 24px 60px;
+}
+
+/* Noise overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+.table-surface > *:not(.noise-overlay) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Header ---- */
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, #a0843a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.04em;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 12px rgba(201, 168, 76, 0.3));
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
+}
+
+/* ---- Toolbar ---- */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 600;
+  border: 1.5px solid var(--gold-dim);
+  border-radius: var(--radius-btn);
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+}
+
+.btn-icon {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.btn-add {
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold-light);
+}
+
+.btn-add:hover {
+  background: rgba(201, 168, 76, 0.22);
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(201, 168, 76, 0.15);
+}
+
+.btn-roll-all {
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.2), rgba(201, 168, 76, 0.08));
+  color: var(--gold-light);
+}
+
+.btn-roll-all:hover {
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.35), rgba(201, 168, 76, 0.15));
+  border-color: var(--gold);
+  box-shadow: 0 0 24px rgba(201, 168, 76, 0.2);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.total-display {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--gold-light);
+  padding: 10px 22px;
+  border: 1.5px solid var(--gold-dim);
+  border-radius: var(--radius-btn);
+  background: rgba(201, 168, 76, 0.05);
+  min-width: 130px;
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.total-display #total {
+  font-weight: 700;
+  font-size: 1.35rem;
+}
+
+.total-display.flash {
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+  border-color: var(--cyan-glow);
+}
+
+/* ---- Dice Grid ---- */
+.dice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ---- Die Card ---- */
+.die-card {
+  position: relative;
+  background: var(--bg-card);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transition: all var(--transition-base);
+}
+
+.die-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(201, 168, 76, 0.08);
+}
+
+/* Remove button */
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--transition-base);
+  line-height: 1;
+}
+
+.remove-btn:hover {
+  color: var(--red-danger);
+  background: rgba(255, 64, 96, 0.12);
+}
+
+/* Die Face */
+.die-face {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-face);
+  border: 2.5px solid var(--gold-dim);
+  background: radial-gradient(circle at 40% 35%, rgba(40, 40, 90, 0.9), rgba(15, 15, 40, 0.95));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.die-face::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(201, 168, 76, 0.15) 25%, transparent 50%, rgba(201, 168, 76, 0.1) 75%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.die-card:hover .die-face::before {
+  opacity: 1;
+}
+
+.die-value {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+  z-index: 1;
+  user-select: none;
+}
+
+/* Die Label */
+.die-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Face Selector */
+.face-selector {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: rgba(15, 15, 40, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-base);
+  width: 100%;
+  max-width: 140px;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a9a' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.face-selector:hover,
+.face-selector:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.15);
+}
+
+.face-selector option {
+  background: #1a1a3e;
+  color: var(--text-primary);
+}
+
+/* Custom face input */
+.custom-face-input {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--gold-light);
+  background: rgba(15, 15, 40, 0.7);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 6px 12px;
+  width: 100%;
+  max-width: 140px;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 12px rgba(201, 168, 76, 0.2);
+}
+
+.custom-face-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Roll Button */
+.roll-btn {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bg-deep);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  border: none;
+  border-radius: 8px;
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  letter-spacing: 0.03em;
+  width: 100%;
+  max-width: 140px;
+}
+
+.roll-btn:hover {
+  background: linear-gradient(135deg, #f0e0a0, var(--gold-light));
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.35);
+  transform: translateY(-1px);
+}
+
+.roll-btn:active {
+  transform: scale(0.95);
+}
+
+.roll-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Rolling animation */
+@keyframes arcane-roll {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.1);
+  }
+  25% {
+    transform: rotateY(90deg) scale(0.82);
+    border-color: var(--purple-glow);
+    box-shadow: 0 0 30px rgba(179, 136, 255, 0.5), inset 0 0 20px rgba(179, 136, 255, 0.15);
+  }
+  50% {
+    transform: rotateY(180deg) scale(1.08);
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.5), inset 0 0 25px rgba(0, 229, 255, 0.15);
+  }
+  75% {
+    transform: rotateY(270deg) scale(0.88);
+    border-color: var(--purple-glow);
+    box-shadow: 0 0 30px rgba(179, 136, 255, 0.4), inset 0 0 15px rgba(179, 136, 255, 0.1);
+  }
+  100% {
+    transform: rotateY(360deg) scale(1);
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(201, 168, 76, 0.3);
+  }
+}
+
+.die-face.rolling {
+  animation: arcane-roll 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.die-face.rolling .die-value {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+}
+
+/* Result flash */
+@keyframes result-flash {
+  0% {
+    color: var(--cyan-glow);
+    text-shadow: 0 0 30px rgba(0, 229, 255, 0.8), 0 0 60px rgba(0, 229, 255, 0.3);
+    transform: scale(1.35);
+  }
+  40% {
+    color: var(--gold-light);
+    text-shadow: 0 0 20px rgba(201, 168, 76, 0.6);
+  }
+  100% {
+    color: var(--gold-light);
+    text-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+    transform: scale(1);
+  }
+}
+
+.die-value.flash {
+  animation: result-flash 0.5s ease-out;
+}
+
+/* Die face settle glow */
+@keyframes settle-glow {
+  0% {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+  }
+  100% {
+    border-color: var(--gold-dim);
+    box-shadow: none;
+  }
+}
+
+.die-face.settled {
+  animation: settle-glow 1.2s ease-out forwards;
+}
+
+/* Card entrance */
+@keyframes card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.die-card.entering {
+  animation: card-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Card exit */
+@keyframes card-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+}
+
+.die-card.exiting {
+  animation: card-exit 0.3s ease-in forwards;
+  pointer-events: none;
+}
+
+/* Total flash */
+@keyframes total-flash {
+  0% {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    border-color: rgba(0, 229, 255, 0.5);
+  }
+  100% {
+    box-shadow: none;
+    border-color: var(--gold-dim);
+  }
+}
+
+.total-display.flash {
+  animation: total-flash 0.8s ease-out;
+}
+
+/* ========================================
+   POPOVER (mobile controls)
+   ======================================== */
+
+.die-popover {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a3e;
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+  z-index: 100;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 168, 76, 0.15);
+  animation: popover-in 0.25s ease-out;
+}
+
+.die-popover.open {
+  display: flex;
+}
+
+.die-popover::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--gold);
+}
+
+@keyframes popover-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.die-popover .face-selector,
+.die-popover .custom-face-input {
+  width: 100%;
+  max-width: none;
+}
+
+.die-popover .popover-remove-btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--red-danger);
+  background: rgba(255, 64, 96, 0.1);
+  border: 1px solid rgba(255, 64, 96, 0.25);
+  border-radius: 8px;
+  padding: 6px 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: all var(--transition-base);
+}
+
+.die-popover .popover-remove-btn:hover {
+  background: rgba(255, 64, 96, 0.2);
+  border-color: var(--red-danger);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .table-surface {
+    padding: 28px 16px 48px;
+  }
+
+  header {
+    margin-bottom: 28px;
+  }
+
+  .toolbar {
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 9px 16px;
+    font-size: 0.95rem;
+  }
+
+  .total-display {
+    font-size: 1.05rem;
+    padding: 9px 16px;
+    min-width: auto;
+  }
+
+  .dice-grid {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 16px;
+  }
+
+  .die-card {
+    padding: 20px 16px 16px;
+    gap: 12px;
+  }
+
+  .die-face {
+    width: 88px;
+    height: 88px;
+  }
+
+  .die-value {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile compact mode */
+@media (max-width: 600px) {
+  .table-surface {
+    padding: 20px 12px 100px; /* extra bottom for fixed toolbar */
+  }
+
+  header {
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  /* Fixed bottom toolbar */
+  .toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: linear-gradient(to top, var(--bg-deep) 60%, transparent);
+    padding: 12px 16px 16px;
+    margin-bottom: 0;
+    gap: 10px;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    flex: 1;
+    justify-content: center;
+    max-width: 160px;
+  }
+
+  .total-display {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    min-width: auto;
+    flex: 0 0 auto;
+  }
+
+  .total-display #total {
+    font-size: 1.1rem;
+  }
+
+  /* Compact dice grid */
+  .dice-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  /* Compact card: just face + label */
+  .die-card {
+    padding: 10px 8px;
+    gap: 6px;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .die-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .die-card:active {
+    transform: scale(0.93);
+  }
+
+  /* Hide desktop controls on mobile */
+  .die-card > .remove-btn,
+  .die-card > .face-selector,
+  .die-card > .custom-face-input,
+  .die-card > .roll-btn {
+    display: none;
+  }
+
+  /* Smaller die face */
+  .die-face {
+    width: 64px;
+    height: 64px;
+    border-width: 2px;
+  }
+
+  .die-value {
+    font-size: 1.5rem;
+  }
+
+  .die-label {
+    font-size: 0.7rem;
+  }
+
+  /* Die face conic gradient on hover not needed on mobile */
+  .die-card:hover .die-face::before {
+    opacity: 0;
+  }
+
+  /* Active state glow when tapped */
+  .die-card.tapped .die-face {
+    border-color: var(--cyan-glow);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.3);
+  }
+}
+
+/* Very small screens: even tighter grid */
+@media (max-width: 380px) {
+  .dice-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 8px;
+  }
+
+  .die-face {
+    width: 56px;
+    height: 56px;
+  }
+
+  .die-value {
+    font-size: 1.3rem;
+  }
+
+  .die-card {
+    padding: 8px 6px;
+  }
+}
+
+/* ---- Empty State ---- */
+.dice-grid:empty::after {
+  content: 'Aggiungi un dado per iniziare...';
+  grid-column: 1 / -1;
+  text-align: center;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  padding: 60px 20px;
+  opacity: 0.6;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Roller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="table-surface">
+    <div class="noise-overlay"></div>
+
+    <header>
+      <h1>Dice Roller</h1>
+      <p class="subtitle">Cast your fate</p>
+    </header>
+
+    <div class="toolbar">
+      <button id="add-die" class="btn btn-add">
+        <span class="btn-icon">+</span> Aggiungi Dado
+      </button>
+      <button id="roll-all" class="btn btn-roll-all">
+        <span class="btn-icon">&#9858;</span> Lancia Tutti
+      </button>
+      <div class="total-display">
+        Totale: <span id="total">0</span>
+      </div>
+    </div>
+
+    <div id="dice-container" class="dice-grid"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

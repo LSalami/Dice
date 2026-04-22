@@ -61,6 +61,7 @@ function rollDie(id) {
   const rollBtn = card.querySelector('.roll-btn');
 
   rollBtn.disabled = true;
+  card.classList.remove('critical-fail');
   faceEl.classList.remove('settled');
   faceEl.classList.add('rolling');
 
@@ -79,6 +80,7 @@ function rollDie(id) {
       valueEl.textContent = finalValue;
       faceEl.classList.remove('rolling');
       faceEl.classList.add('settled');
+      card.classList.toggle('critical-fail', finalValue === 1);
 
       valueEl.classList.add('flash');
       valueEl.addEventListener('animationend', () => {
@@ -102,26 +104,31 @@ function rollAll() {
 
 // ---- Dynamic Sizing (mobile) ----
 
+// Lookup table: optimal columns for 1..20 dice, minimising orphaned last-row slots
+const OPTIMAL_COLS = [0,1,2,3,2,3,3,4,4,3,5,4,4,5,5,5,4,5,5,5,5];
+
+function optimalColumns(count) {
+  return count <= 20 ? OPTIMAL_COLS[count] : 5;
+}
+
 function updateDiceSize() {
   if (!isMobile()) return;
 
   const count = dice.length;
-  let size, font, gap;
+  if (count === 0) return;
 
-  if (count <= 2) {
-    size = 100; font = 2.2; gap = 16;
-  } else if (count <= 4) {
-    size = 80; font = 1.8; gap = 14;
-  } else if (count <= 9) {
-    size = 68; font = 1.5; gap = 10;
-  } else if (count <= 16) {
-    size = 56; font = 1.3; gap = 8;
-  } else {
-    size = 46; font = 1.1; gap = 6;
-  }
+  const cols = optimalColumns(count);
+  const gap = cols <= 3 ? 14 : cols <= 4 ? 10 : 8;
 
-  container.style.setProperty('--dice-size', size + 'px');
-  container.style.setProperty('--dice-font', font + 'rem');
+  // Compute face size from actual available width per column
+  const availableWidth = window.innerWidth - 24 - gap * (cols - 1);
+  const cardWidth = availableWidth / cols;
+  const faceSize = Math.min(90, Math.round(cardWidth * 0.62));
+  const fontSize = +(Math.max(1.0, Math.min(2.2, faceSize / 42))).toFixed(1);
+
+  container.style.setProperty('--dice-cols', cols);
+  container.style.setProperty('--dice-size', faceSize + 'px');
+  container.style.setProperty('--dice-font', fontSize + 'rem');
   container.style.setProperty('--dice-gap', gap + 'px');
 }
 
@@ -147,6 +154,7 @@ function setFaces(id, faces) {
   die.value = null;
 
   const card = container.querySelector(`[data-id="${id}"]`);
+  card.classList.remove('critical-fail');
   card.querySelector('.die-value').textContent = '–';
   card.querySelector('.die-label').textContent = `d${faces}`;
   card.querySelector('.die-face').classList.remove('settled');

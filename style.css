@@ -460,6 +460,26 @@ h1 {
   animation: settle-glow 1.2s ease-out forwards;
 }
 
+/* Critical fail (valore 1) */
+@keyframes critical-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(255, 50, 50, 0.5), inset 0 0 12px rgba(255, 50, 50, 0.08); }
+  50%       { box-shadow: 0 0 28px rgba(255, 50, 50, 0.8), inset 0 0 20px rgba(255, 50, 50, 0.15); }
+}
+
+.die-card.critical-fail .die-face {
+  border-color: #ff3232;
+  animation: critical-pulse 1.6s ease-in-out infinite;
+}
+
+.die-card.critical-fail .die-value {
+  color: #ff6060;
+  text-shadow: 0 0 14px rgba(255, 50, 50, 0.7);
+}
+
+.die-card.critical-fail .die-label {
+  color: #ff6060;
+}
+
 /* Card entrance */
 @keyframes card-enter {
   0% {
@@ -687,13 +707,14 @@ h1 {
     font-size: 1.1rem;
   }
 
-  /* Compact dice grid — sizes driven by JS via --dice-size and --dice-font */
+  /* Compact dice grid — cols/sizes fully driven by JS */
   .dice-grid {
+    --dice-cols: 3;
     --dice-size: 72px;
     --dice-font: 1.6rem;
     --dice-gap: 12px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(calc(var(--dice-size) + 20px), 1fr));
+    grid-template-columns: repeat(var(--dice-cols), 1fr);
     gap: var(--dice-gap);
     max-width: 100%;
     transition: gap 0.3s ease;

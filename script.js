@@ -5,9 +5,42 @@
 const FACE_OPTIONS = [4, 6, 8, 10, 12, 20, 100];
 const ROLL_DURATION = 700;
 const ROLL_INTERVAL = 50;
+const STORAGE_KEY = 'dice-roller-state';
 
 let dice = [];
 let nextId = 1;
+
+// ---- Persistence ----
+
+function saveState() {
+  const state = dice.map(d => ({ faces: d.faces, value: d.value }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    if (!Array.isArray(saved) || saved.length === 0) return false;
+    saved.forEach(({ faces, value }) => {
+      const die = { id: nextId++, faces, value: value ?? null, isRolling: false };
+      dice.push(die);
+      renderDieCard(die);
+      if (value !== null && value !== undefined) {
+        const card = container.querySelector(`[data-id="${die.id}"]`);
+        card.querySelector('.die-value').textContent = value;
+        card.querySelector('.die-face').classList.add('settled');
+        card.classList.toggle('critical-fail', value === 1);
+      }
+    });
+    updateDiceSize();
+    updateTotal();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // ---- Mobile Detection ----
 function isMobile() {
@@ -28,6 +61,7 @@ function addDie(faces = 6) {
   renderDieCard(die);
   updateDiceSize();
   updateTotal();
+  saveState();
 }
 
 function removeDie(id) {
@@ -40,6 +74,7 @@ function removeDie(id) {
     dice = dice.filter(d => d.id !== id);
     updateDiceSize();
     updateTotal();
+    saveState();
   }, { once: true });
 }
 
@@ -89,6 +124,7 @@ function rollDie(id) {
 
       rollBtn.disabled = false;
       updateTotal();
+      saveState();
     }
   }, ROLL_INTERVAL);
 }
@@ -160,6 +196,7 @@ function setFaces(id, faces) {
   card.querySelector('.die-face').classList.remove('settled');
 
   updateTotal();
+  saveState();
 }
 
 function showCustomInput(card, die) {
@@ -412,4 +449,4 @@ document.addEventListener('keydown', (e) => {
 window.addEventListener('resize', updateDiceSize);
 
 // ---- Init ----
-addDie(6);
+if (!loadState()) addDie(6);

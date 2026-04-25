@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="base-path" content="__BASE_PATH__">
   <title>Dice Roller</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,7 +11,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="table-surface">
+  <!-- SOLO MODE -->
+  <div id="solo-view" class="table-surface">
     <div class="noise-overlay"></div>
 
     <header>
@@ -25,6 +27,9 @@
       <button id="roll-all" class="btn btn-roll-all">
         <span class="btn-icon">&#9858;</span> Lancia Tutti
       </button>
+      <button id="open-multiplayer" class="btn btn-add">
+        <span class="btn-icon">&#x2302;&#xFE0E;</span> Multiplayer
+      </button>
       <div class="total-display">
         Totale: <span id="total">0</span>
       </div>
@@ -33,6 +38,97 @@
     <div id="dice-container" class="dice-grid"></div>
   </div>
 
+  <!-- ROOM MODE -->
+  <div id="room-view" class="table-surface hidden">
+    <div class="noise-overlay"></div>
+
+    <div class="room-code-card" id="room-code-card">
+      <span class="room-code-label">Codice stanza</span>
+      <span class="room-code-value" id="room-code-display">—</span>
+      <button class="room-code-copy" id="room-code-copy" title="Copia">⧉</button>
+    </div>
+
+    <div class="room-status" id="room-status">In attesa...</div>
+
+    <div class="my-dice-section">
+      <div class="dice-controls">
+        <span class="section-label">I tuoi dadi (<span id="my-dice-count">0</span>)</span>
+        <div class="dice-controls-buttons" id="dice-controls-buttons">
+          <button id="dice-minus" class="dice-ctrl-btn" aria-label="Rimuovi dado">−</button>
+          <button id="dice-plus" class="dice-ctrl-btn" aria-label="Aggiungi dado">+</button>
+        </div>
+      </div>
+      <div id="my-dice" class="dice-grid mini"></div>
+    </div>
+
+    <div class="players-section">
+      <div class="section-label">Giocatori</div>
+      <div id="players-list" class="players-list"></div>
+    </div>
+
+    <div id="reveal-section" class="reveal-section hidden">
+      <div class="section-label">Conteggio per faccia</div>
+      <div id="counts-grid" class="counts-grid"></div>
+      <div class="section-label" style="margin-top:18px;">Dadi di tutti</div>
+      <div id="all-dice" class="all-dice"></div>
+    </div>
+
+    <div id="waiting-host-banner" class="waiting-host-banner hidden">
+      In attesa dell'host…
+    </div>
+
+    <div class="toolbar room-toolbar">
+      <button id="ready-btn" class="btn btn-roll-all">Pronto</button>
+      <button id="dudo-btn" class="btn btn-roll-all hidden">Dubito</button>
+      <button id="new-round-btn" class="btn btn-add hidden">Nuovo round</button>
+      <button id="leave-btn" class="btn btn-add">Esci</button>
+    </div>
+  </div>
+
+  <!-- LOBBY MODAL -->
+  <div id="lobby-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>Modalità Stanza</h2>
+      <label class="field">
+        <span>Il tuo nome</span>
+        <input id="player-name" type="text" maxlength="20" placeholder="Nome">
+      </label>
+
+      <div class="lobby-tabs">
+        <button class="tab-btn active" data-tab="create">Crea</button>
+        <button class="tab-btn" data-tab="join">Unisciti</button>
+      </div>
+
+      <div class="tab-content" data-tab="create">
+        <label class="field">
+          <span>Facce per dado</span>
+          <input id="lobby-faces" type="number" min="2" max="100" value="6">
+        </label>
+        <label class="field">
+          <span>Dadi a giocatore</span>
+          <input id="lobby-dice" type="number" min="1" max="10" value="5">
+        </label>
+        <label class="field">
+          <span>Max giocatori</span>
+          <input id="lobby-max" type="number" min="2" max="8" value="6">
+        </label>
+        <button id="lobby-create" class="btn btn-roll-all">Crea stanza</button>
+      </div>
+
+      <div class="tab-content hidden" data-tab="join">
+        <label class="field">
+          <span>Codice stanza</span>
+          <input id="lobby-code" type="text" maxlength="5" placeholder="ABCDE" autocapitalize="characters">
+        </label>
+        <button id="lobby-join" class="btn btn-roll-all">Entra</button>
+      </div>
+
+      <div class="lobby-error" id="lobby-error"></div>
+      <button id="lobby-close" class="btn btn-add">Chiudi</button>
+    </div>
+  </div>
+
+  <script src="socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
